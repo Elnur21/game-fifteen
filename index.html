@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Game fifteen</title>
+    <style>
+      .board {
+        width: 200px;
+        height:200px;
+        border: 1px solid black;
+        position: relative;
+        background-color: blue;
+      }
+      .button {
+        width: 50px;
+        height: 50px;
+        background-color: rgb(21, 21, 104);
+        color: white;
+        position: absolute;
+        transition: 0.5s;
+        z-index: 100;
+        border: 1px solid blue;
+      }
+      .hidden {
+        z-index: 0;
+        background-color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState } = React;
+      const App = () => {
+        let array = [];
+        while (array.length < 16) {
+          let random = Math.floor(Math.random() * 20);
+          if (!array.includes(random) && random <= 16 && random > 0) {
+            array.push(random);
+          }
+        }
+        return (
+          <div className="board">
+            {array.map((a) => (
+              <Button num={a} key={a} id={a} />
+            ))}
+          </div>
+        );
+      };
+
+      const Button = (props) => {
+        const [num, setNum] = useState(props.num);
+        return (
+          <button
+            className={"button" + (props.id === 16 ? " hidden" : "")}
+            id={`${props.id}`}
+          >
+            {num === 16 ? "" : num}
+          </button>
+        );
+      };
+      ReactDOM.render(<App />, document.getElementById("root"));
+
+      let buttons = document.querySelectorAll(".button");
+      let left = 0;
+      let top1 = 0;
+      buttons.forEach((button) => {
+        button.style.left = left + "px";
+        button.style.top = top1 + "px";
+        if (left === 150) {
+          top1 += 50;
+          left = 0;
+        } else {
+          left += 50;
+        }
+      });
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const board = document.querySelector(".board")
+            console.log(board.childNodes)
+          const buttonRect = button.getBoundingClientRect();
+          const elementLeft = Array.from(
+            document.elementsFromPoint(buttonRect.left - 1, buttonRect.top)
+          );
+          const elementRight = Array.from(
+            document.elementsFromPoint(buttonRect.right + 1, buttonRect.top)
+          );
+          const elementTop = Array.from(
+            document.elementsFromPoint(buttonRect.left, buttonRect.top - 1)
+          );
+          const elementBottom = Array.from(
+            document.elementsFromPoint(buttonRect.left, buttonRect.bottom + 1)
+          );
+          let bottom = elementBottom[0].style.cssText;
+          let top = elementTop[0].style.cssText;
+          let right = elementRight[0].style.cssText;
+          let left = elementLeft[0].style.cssText;
+          let button_css = button.style.cssText;
+          if (elementBottom[0].getAttribute("id") == 16) {
+            button.style.cssText = bottom;
+            elementBottom[0].style.cssText = button_css;
+          }
+          if (elementLeft[0].getAttribute("id") == 16) {
+            button.style.cssText = left;
+            elementLeft[0].style.cssText = button_css;
+          }
+          if (elementRight[0].getAttribute("id") == 16) {
+            button.style.cssText = right;
+            elementRight[0].style.cssText = button_css;
+          }
+          if (elementTop[0].getAttribute("id") == 16) {
+            button.style.cssText = top;
+            elementTop[0].style.cssText = button_css;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
