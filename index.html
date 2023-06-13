@@ -5,7 +5,7 @@
     <style>
       .board {
         width: 200px;
-        height:200px;
+        height: 200px;
         border: 1px solid black;
         position: relative;
         background-color: blue;
@@ -34,8 +34,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
 
     <script type="text/babel">
-      const { useState } = React;
+      const { useState, useEffect } = React;
       const App = () => {
+        const winningArrangement = Array.from(
+          { length: 16 },
+          (_, index) => index + 1
+        );
         let array = [];
         while (array.length < 16) {
           let random = Math.floor(Math.random() * 20);
@@ -43,10 +47,43 @@
             array.push(random);
           }
         }
+        const handleClick = (buttonId) => {
+          const buttonIndex = array.indexOf(buttonId);
+          const emptyIndex = array.indexOf(16);
+
+          if (isAdjacent(buttonIndex, emptyIndex)) {
+            const updatedArrangement = [...array];
+            [updatedArrangement[buttonIndex], updatedArrangement[emptyIndex]] =
+              [updatedArrangement[emptyIndex], updatedArrangement[buttonIndex]];
+
+            array = updatedArrangement;
+
+            if (isWin(updatedArrangement)) {
+              alert("Congratulations! You won the game!");
+            }
+          }
+        };
+        const isAdjacent = (buttonIndex, emptyIndex) => {
+          const adjacentIndices = [
+            emptyIndex - 4,
+            emptyIndex + 4,
+            emptyIndex - 1,
+            emptyIndex + 1,
+          ];
+          return adjacentIndices.includes(buttonIndex);
+        };
+        const isWin = (arrangement) => {
+          for (let i = 0; i < arrangement.length; i++) {
+            if (arrangement[i] !== winningArrangement[i]) {
+              return false;
+            }
+          }
+          return true;
+        };
         return (
           <div className="board">
             {array.map((a) => (
-              <Button num={a} key={a} id={a} />
+              <Button num={a} key={a} id={a} onClick={handleClick} />
             ))}
           </div>
         );
@@ -54,10 +91,14 @@
 
       const Button = (props) => {
         const [num, setNum] = useState(props.num);
+        const handleClick = () => {
+          props.onClick(props.id);
+        };
         return (
           <button
             className={"button" + (props.id === 16 ? " hidden" : "")}
             id={`${props.id}`}
+            onClick={handleClick}
           >
             {num === 16 ? "" : num}
           </button>
@@ -80,8 +121,7 @@
       });
       buttons.forEach((button) => {
         button.addEventListener("click", () => {
-            const board = document.querySelector(".board")
-            console.log(board.childNodes)
+          const board = document.querySelector(".board");
           const buttonRect = button.getBoundingClientRect();
           const elementLeft = Array.from(
             document.elementsFromPoint(buttonRect.left - 1, buttonRect.top)
