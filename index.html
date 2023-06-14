@@ -36,11 +36,20 @@
     <script type="text/babel">
       const { useState, useEffect } = React;
       const App = () => {
+        return (
+          <div className="app">
+            <Board />
+            <Wins />
+          </div>
+        );
+      };
+
+      const Board = () => {
         const winningArrangement = Array.from(
           { length: 16 },
           (_, index) => index + 1
         );
-        let array = [];
+        let array = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
         while (array.length < 16) {
           let random = Math.floor(Math.random() * 20);
           if (!array.includes(random) && random <= 16 && random > 0) {
@@ -59,7 +68,13 @@
             array = updatedArrangement;
 
             if (isWin(updatedArrangement)) {
+              let wins = JSON.parse(localStorage.getItem("wins"))
+                ? JSON.parse(localStorage.getItem("wins"))
+                : [];
+              wins.push(`${new Date()}`);
               alert("Congratulations! You won the game!");
+              localStorage.setItem("wins", JSON.stringify(wins));
+              window.location.reload();
             }
           }
         };
@@ -102,6 +117,24 @@
           >
             {num === 16 ? "" : num}
           </button>
+        );
+      };
+
+      const Wins = () => {
+        let wins = JSON.parse(localStorage.getItem("wins"))
+          ? JSON.parse(localStorage.getItem("wins"))
+          : [];
+
+        return (
+          <div>
+            {wins.length > 0 ? (
+              wins.map((win) => (
+                <p style={{ color: "green" }} key={win}>You won at this time:{win}</p>
+              ))
+            ) : (
+              <p style={{ color: "red" }}>You have never won.</p>
+            )}
+          </div>
         );
       };
       ReactDOM.render(<App />, document.getElementById("root"));
